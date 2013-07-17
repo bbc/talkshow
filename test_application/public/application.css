@@ -1,0 +1,23 @@
+body {
+  font: 75% Verdana, Helvetica, Arial, sans-serif;
+  padding: 20px;
+}
+
+h1 {
+    font-size: 150%;
+    border-bottom: none;
+    border-bottom: 1px solid Gray;
+}
+
+.console {
+  font: 100% Courier New, monospace;
+}
+
+.talkshowhost {
+  font-weight: bold;
+}
+
+ul
+{
+  list-style-type: none;
+}
