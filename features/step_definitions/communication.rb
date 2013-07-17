@@ -31,7 +31,6 @@ Given(/^it's instrumented with talkshow$/) do
       driver = Selenium::WebDriver.for :phantomjs
       driver.navigate.to( @js_app )
       sleep 2
-      puts driver.page_source
     end
     $application_ready = true
   end
@@ -72,11 +71,12 @@ When(/^I send invalid javascript$/) do
     @ts.execute('nosuchfunction()')
   rescue Exception => e
     @exception = e
+    puts e.inspect
   end
 end
 
 Then(/^I should receive an exception$/) do
-  /nosuchfunction is not defined/.match(@exception.to_s).should_not be_nil
+  /ReferenceError/.match(@exception.to_s).should_not be_nil
 end
 
 
