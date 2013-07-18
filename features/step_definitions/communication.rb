@@ -80,6 +80,27 @@ Then(/^I should receive an exception$/) do
 end
 
 
+#
+# Scenario 3
+#
+
+When(/^I execute a js file$/) do
+  @expected = 5
+  @result = @ts.execute_file( './features/fixtures/simple.js' )
+end
+
+Then(/^I should receive the return response$/) do
+  @result.to_i.should == @expected
+end
+
+#
+# Scenario 4
+#
+
+When(/^I execute a multiline js file$/) do
+  @expected = 2000
+  @result = @ts.execute_file( './features/fixtures/multiline.js' )
+end
 
 
 #

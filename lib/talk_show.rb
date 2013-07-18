@@ -44,6 +44,11 @@ class TalkShow
     #puts "#{command} ==> #{answer[:data]}"
     answer[:data]
   end
+  
+  def execute_file( filename )
+    text = File.read(filename)
+    execute(text)
+  end
 
   def recover
     @question_queue.push( 'ts.recover();')
