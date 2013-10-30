@@ -1,3 +1,4 @@
+$: << '.'
 require 'open-uri'
 require 'watir-webdriver'
 require 'lib/talk_show'
