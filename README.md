@@ -17,4 +17,4 @@ In a new terminal, start the Talkshow demo:
 
     cd $TALKSHOW
     bundle install
-    bundle exec ruby bin/proof_of_concept.rb
+    RUBYLIB=`pwd` ruby bin/proof_of_concept.rb
