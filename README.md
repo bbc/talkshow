@@ -11,7 +11,7 @@ Start the test application:
     bundle install
     bundle exec ruby ./start_app.rb
 
-Open a browser and visit http://localhost:4568/app?talkshowhost=localhost:4567
+Open a browser and visit <http://localhost:4568/app?talkshowhost=localhost:4567>
 
 In a new terminal, start the Talkshow demo:
 
