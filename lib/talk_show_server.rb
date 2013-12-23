@@ -39,7 +39,7 @@ class TalkShowServer < Sinatra::Base
     content_type 'text/javascript'
     t = Time.new()
     id = rand(99999)
-    
+
     content = TalkShowServer.question_queue.pop if !TalkShowServer.question_queue.empty?
     type = ( content ? "code" : "nop")
     
@@ -55,11 +55,12 @@ class TalkShowServer < Sinatra::Base
     "ts.handleTalkShowHostQuestion( #{json} );"
   end
 
-  get '/answer/:poll_id/:id/:status/:data' do
+  get '/answer/:poll_id/:id/:status/:object/:data' do
     content_type 'text/javascript'
     if params[:status] != 'nop'
       TalkShowServer.answer_queue.push( {
                                           :data => params[:data],
+                                          :object => params[:object],
                                           :status => params[:status]
                                          } )
     end
