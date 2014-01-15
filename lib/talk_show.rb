@@ -47,11 +47,9 @@ class TalkShow
   def execute( command, timeout=6 )
     @question_queue.push( command )
 
-    if timeout < 0
-      # Negative timeout - fire and forget
-      # Should only be used if it is known not to return an answer
-      return nil
-    end
+    # Negative timeout - fire and forget
+    # Should only be used if it is known not to return an answer
+    return nil if timeout < 0
 
     sleep_time = 0.1
     answer = nil
