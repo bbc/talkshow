@@ -44,11 +44,16 @@ class TalkShow
 
   # Send a javascript instruction to the client
   # ts.execute( 'alert("Annoying popup");' )
-  def execute( command )
-    timeout = 6
-    sleep_time = 0.1
+  def execute( command, timeout=6 )
     @question_queue.push( command )
 
+    if timeout < 0
+      # Negative timeout - fire and forget
+      # Should only be used if it is known not to return an answer
+      return nil
+    end
+
+    sleep_time = 0.1
     answer = nil
     catch(:done) do
       (timeout/sleep_time).to_i.times { |i|
