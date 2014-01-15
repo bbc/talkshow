@@ -23,7 +23,6 @@ class TalkShow
       TalkShowServer.answer_queue(@answer_queue)
       TalkShowServer.run!()
     end
-    sleep 2
   end
 
   # Stop the webserver
@@ -45,18 +44,20 @@ class TalkShow
 
   # Send a javascript instruction to the client
   # ts.execute( 'alert("Annoying popup");' )
-  def execute( command )
+  def execute( command, timeout=6 )
     @question_queue.push( command )
-    sleep(1)
 
+    # Negative timeout - fire and forget
+    # Should only be used if it is known not to return an answer
+    return nil if timeout < 0
+
+    sleep_time = 0.1
     answer = nil
-    t = 0.1
     catch(:done) do
-      7.times { |i|
+      (timeout/sleep_time).to_i.times { |i|
         answer = soft_pop
         throw :done if answer
-        sleep t
-        t*=2
+        sleep sleep_time
       }
     end
 
