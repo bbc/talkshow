@@ -5,8 +5,13 @@ require 'json'
 describe "Talkshow" do
 
   before(:each) do
-    @ts = TalkShow.new()
-    @ts.start_server
+    @question_queue = Queue.new
+    @answer_queue = Queue.new
+    @thread = Thread.new do
+      TalkShowServer.question_queue(@question_queue)
+      TalkShowServer.answer_queue(@answer_queue)
+      TalkShowServer.run!()
+    end
     sleep 3
   end
 
@@ -36,6 +41,24 @@ describe "Talkshow" do
   it "should return 'ok' to answers without a callback" do
     data = open('http://localhost:4567/answer/123/456/status/object/content').read
     data.should eq('ok')
+  end
+
+  it "should give information about the question type" do
+    type = 'message type'
+    message = "alert('hello')"
+    @question_queue.push({type: type, message: message})
+    json = JSON.parse(open('http://localhost:4567/question/123').read)
+    json.should have_key("type")
+    json["type"].should eq(type)
+  end
+
+  it "should serve up the message" do
+    type = 'message type'
+    message = "alert('hello')"
+    @question_queue.push({type: type, message: message})
+    json = JSON.parse(open('http://localhost:4567/question/123').read)
+    json.should have_key("content")
+    json["content"].should eq(message)
   end
 
 end

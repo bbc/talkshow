@@ -28,7 +28,12 @@ class TalkShow
   # Stop the webserver
   def stop_server
     # Slow down polling to a crawl
+    logger.info( "resetting nextPoll" )
     self.execute( 'ts.nextPoll = 5000;' )
+    #@question_queue.push( {
+    #    type: "config",
+    #    message: "nextPoll=5000"
+    #  } )
     
     @thread.exit
     #puts "Closed down server"
@@ -45,7 +50,13 @@ class TalkShow
   # Send a javascript instruction to the client
   # ts.execute( 'alert("Annoying popup");' )
   def execute( command, timeout=6 )
-    @question_queue.push( command )
+    #logger.info( "Next command" )
+    #@question_queue.push( command )
+    #logger.info( "Command sent: #{command}" )
+    @question_queue.push( {
+                           type: 'code',
+                           message: command
+                          } )
 
     # Negative timeout - fire and forget
     # Should only be used if it is known not to return an answer
@@ -93,6 +104,13 @@ class TalkShow
 
   def recover
     @question_queue.push( 'ts.recover();')
+  end
+
+  def logger
+    if !@logger
+      @logger = Logger.new('talkshowworker.log')
+    end
+    @logger
   end
 
 end

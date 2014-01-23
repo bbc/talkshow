@@ -39,19 +39,48 @@ class TalkShowServer < Sinatra::Base
     t = Time.new()
     id = rand(99999)
 
+    logger.info( "question ##{id} coming in" )
+
+    if TalkShowServer.question_queue.empty?
+      logger.info( "Queue is empty" )
+    end
+
     content = TalkShowServer.question_queue.pop if !TalkShowServer.question_queue.empty?
-    type = ( content ? "code" : "nop")
+
+    logger.info( "content: #{content.to_s}" )
+    logger.info( "content is a #{content.class}" )
+
+    if content.is_a? String
+      logger.info( " ... a string" )
+      # Assume to be code
+      type = "code"
+      message = content
+    elsif content.is_a? Hash
+      logger.info( " ... a hash" )
+      type = content[:type]
+      message = content[:message]
+    else
+      logger.info( " ... nothing" )
+      type = "nop"
+      message = ""
+    end
+
+    #type = ( content ? "code" : "nop")
 
     callback = params[:callback]
     
-    logger.info( "/question ##{id}: #{content}" )
+    #logger.info( "/question ##{id}: #{content}" )
+    logger.info( "/question ##{id}: #{type}: #{message}" )
     
     json = {
       :id => id,
       :time => t.to_s,
-      :content => content,
+      #:content => content,
+      :content => message,
       :type => type
     }.to_json
+
+    logger.info( json )
     
     if callback
       content_type 'text/javascript'
