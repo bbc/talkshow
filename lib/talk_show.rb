@@ -30,13 +30,8 @@ class TalkShow
     # Slow down polling to a crawl
     logger.info( "resetting nextPoll" )
     self.execute( 'ts.nextPoll = 5000;' )
-    #@question_queue.push( {
-    #    type: "config",
-    #    message: "nextPoll=5000"
-    #  } )
     
     @thread.exit
-    #puts "Closed down server"
   end
 
   def soft_pop
@@ -48,11 +43,7 @@ class TalkShow
   end
 
   # Send a javascript instruction to the client
-  # ts.execute( 'alert("Annoying popup");' )
   def execute( command, timeout=6 )
-    #logger.info( "Next command" )
-    #@question_queue.push( command )
-    #logger.info( "Command sent: #{command}" )
     @question_queue.push( {
                            type: 'code',
                            message: command

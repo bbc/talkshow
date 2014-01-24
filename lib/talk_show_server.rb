@@ -51,16 +51,13 @@ class TalkShowServer < Sinatra::Base
     logger.info( "content is a #{content.class}" )
 
     if content.is_a? String
-      logger.info( " ... a string" )
       # Assume to be code
       type = "code"
       message = content
     elsif content.is_a? Hash
-      logger.info( " ... a hash" )
       type = content[:type]
       message = content[:message]
     else
-      logger.info( " ... nothing" )
       type = "nop"
       message = ""
     end
