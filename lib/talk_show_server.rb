@@ -36,27 +36,60 @@ class TalkShowServer < Sinatra::Base
   end
 
   get '/question/:poll_id' do
-    content_type 'text/javascript'
     t = Time.new()
     id = rand(99999)
 
+    logger.info( "question ##{id} coming in" )
+
+    if TalkShowServer.question_queue.empty?
+      logger.info( "Queue is empty" )
+    end
+
     content = TalkShowServer.question_queue.pop if !TalkShowServer.question_queue.empty?
-    type = ( content ? "code" : "nop")
+
+    logger.info( "content: #{content.to_s}" )
+    logger.info( "content is a #{content.class}" )
+
+    if content.is_a? String
+      # Assume to be code
+      type = "code"
+      message = content
+    elsif content.is_a? Hash
+      type = content[:type]
+      message = content[:message]
+    else
+      type = "nop"
+      message = ""
+    end
+
+    #type = ( content ? "code" : "nop")
+
+    callback = params[:callback]
     
-    logger.info( "/question ##{id}: #{content}" )
+    #logger.info( "/question ##{id}: #{content}" )
+    logger.info( "/question ##{id}: #{type}: #{message}" )
     
     json = {
       :id => id,
       :time => t.to_s,
-      :content => content,
+      #:content => content,
+      :content => message,
       :type => type
     }.to_json
+
+    logger.info( json )
     
-    "ts.handleTalkShowHostQuestion( #{json} );"
+    if callback
+      content_type 'text/javascript'
+      "#{callback}( #{json} );"
+    else
+      content_type :json
+      json
+    end
   end
 
   get '/answer/:poll_id/:id/:status/:object/:data' do
-    content_type 'text/javascript'
+    callback = params[:callback]
     if params[:status] != 'nop'
       TalkShowServer.answer_queue.push( {
                                           :data => params[:data],
@@ -66,8 +99,13 @@ class TalkShowServer < Sinatra::Base
     end
     logger.info( "/answer   ##{params[:id]}: #{params[:data]}" )
 
-    "notify('nop received', true, true);"
+    if callback
+      content_type 'text/javascript'
+      "#{callback}( 'nop received', true, true );"
+    else
+      content_type 'text/html'
+      'ok'
+    end
   end
 
-  
 end

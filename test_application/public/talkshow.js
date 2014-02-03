@@ -46,8 +46,11 @@ function Talkshow(uri) {
     if (type == 'answer') {
       src = src + "/" + data['id']
       src = src + "/" + data['status']
-       src = src + "/" + data['object']
+      src = src + "/" + data['object']
       src = src + "/" + data['content']
+      src = src + "?callback=notify"
+    } else {
+      src = src + '?callback=ts.handleTalkShowHostQuestion'
     }
     script.src = src
     notify("Polling: " + src, true, true);
