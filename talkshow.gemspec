@@ -16,10 +16,7 @@ Gem::Specification.new do |s|
   s.license     = 'Apache 2'
 
   s.add_runtime_dependency 'sinatra'
-  s.add_runtime_dependency 'thin'
   s.add_runtime_dependency 'sinatra-contrib'
+  s.add_runtime_dependency 'thin'
   s.add_runtime_dependency 'json'
-  s.add_runtime_dependency 'cucumber'
-  s.add_runtime_dependency 'watir-webdriver'
-  s.add_runtime_dependency 'rspec'
 end

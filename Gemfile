@@ -3,6 +3,8 @@ gem 'sinatra'
 gem 'thin'
 gem 'sinatra-contrib'
 gem 'json'
-gem 'cucumber'
-gem 'watir-webdriver'
-gem 'rspec'
+group :development, :test do
+  gem 'cucumber'
+  gem 'watir-webdriver'
+  gem 'rspec'
+end

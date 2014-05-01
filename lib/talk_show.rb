@@ -7,6 +7,11 @@ require_relative 'talk_show_server.rb'
 class TalkShowTimeout < StandardError
 end
 
+
+#
+# Talkshow communications api for sending commands
+# to talkshow.js lib running in your web application
+#
 class TalkShow
   
   attr_accessor :thread, :port
@@ -42,12 +47,23 @@ class TalkShow
     end
   end
 
+  def invoke( function, args, timeout=6 )
+    send_question( {
+        type: 'invocation',
+        function: function,
+        args: args
+      }, timeout)
+  end
+
   # Send a javascript instruction to the client
   def execute( command, timeout=6 )
-    @question_queue.push( {
-                           type: 'code',
-                           message: command
-                          } )
+    send_question( { type: 'code', message: command }, timeout)
+  end
+    
+  def send_question( message, timeout )
+    @question_queue.push( message )
+    
+    p message
 
     # Negative timeout - fire and forget
     # Should only be used if it is known not to return an answer
@@ -62,6 +78,8 @@ class TalkShow
         sleep sleep_time
       }
     end
+    
+    p answer
 
     if !answer
       raise TalkShowTimeout.new
@@ -72,22 +90,23 @@ class TalkShow
     end
 
     case answer[:object]
-      when 'boolean'
+    when 'boolean'
       bool = ( answer[:data] == 'true' )
-        return bool
-      when 'undefined'
-        if answer[:data] == 'undefined'
-          nil
-        else
-          answer[:data]
-        end
-      when 'string'
-      answer[:data].to_s
+      return bool
+    when 'undefined'
+      if answer[:data] == 'undefined'
+        nil
       else
+        answer[:data]
+      end
+    when 'string'
+      answer[:data].to_s
+    else
       answer[:data]
     end
   end
   
+  # Load in a javascript file and execute remotely
   def execute_file( filename )
     text = File.read(filename)
     execute(text)

@@ -39,43 +39,40 @@ class TalkShowServer < Sinatra::Base
     t = Time.new()
     id = rand(99999)
 
+    json_hash = {
+      :id => id,
+      :time => t.to_s,
+    }
+
     logger.info( "question ##{id} coming in" )
 
+    content = nil;
     if TalkShowServer.question_queue.empty?
       logger.info( "Queue is empty" )
-    end
+      json_hash[:type] = "nop"
+      json_hash[:message] = ""
 
-    content = TalkShowServer.question_queue.pop if !TalkShowServer.question_queue.empty?
-
-    logger.info( "content: #{content.to_s}" )
-    logger.info( "content is a #{content.class}" )
-
-    if content.is_a? String
-      # Assume to be code
-      type = "code"
-      message = content
-    elsif content.is_a? Hash
-      type = content[:type]
-      message = content[:message]
     else
-      type = "nop"
-      message = ""
+      content = TalkShowServer.question_queue.pop if !TalkShowServer.question_queue.empty?
+      logger.info( "content: #{content.to_s}" )
+      
+      type = content[:type]
+      json_hash[:type] = type
+          
+      if type == 'code'
+        json_hash[:content] = content[:message]
+      elsif type == 'invocation'
+        json_hash[:function] = content[:function]
+        json_hash[:args] = content[:args]
+      end
     end
-
-    #type = ( content ? "code" : "nop")
 
     callback = params[:callback]
     
     #logger.info( "/question ##{id}: #{content}" )
-    logger.info( "/question ##{id}: #{type}: #{message}" )
+#    logger.info( "/question ##{id}: #{type}: #{message}" )
     
-    json = {
-      :id => id,
-      :time => t.to_s,
-      #:content => content,
-      :content => message,
-      :type => type
-    }.to_json
+    json = json_hash.to_json
 
     logger.info( json )
     
@@ -89,7 +86,7 @@ class TalkShowServer < Sinatra::Base
   end
 
   get '/answer/:poll_id/:id/:status/:object/:data' do
-    callback = params[:callback]
+    #callback = params[:callback]
     if params[:status] != 'nop'
       TalkShowServer.answer_queue.push( {
                                           :data => params[:data],
@@ -98,14 +95,8 @@ class TalkShowServer < Sinatra::Base
                                          } )
     end
     logger.info( "/answer   ##{params[:id]}: #{params[:data]}" )
-
-    if callback
-      content_type 'text/javascript'
-      "#{callback}( 'nop received', true, true );"
-    else
-      content_type 'text/html'
-      'ok'
-    end
+    content_type 'text/javascript'
+    'ts.ack();'
   end
 
 end

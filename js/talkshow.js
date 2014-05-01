@@ -1,33 +1,43 @@
 // Talkshow constructor, takes a uri which indicates where it
 // should look for the server. For example localhost:4567/talkshowhost
 function Talkshow(uri) {
+  
+  this.VERSION = '0.2'
+  this.POLL_INCREMENT = 500;
+  this.MAXIMUM_POLL_TIME = 5000;
+  this.MINIMUM_POLL_TIME = 500;
+  
   this.url = "http://" + uri;
   this.logger;
   this.ticker;
-  this.nextPoll = 2000;
+  this.nextPoll = MAXIMUM_POLL_TIME ;
 
   this.log = function( text ) {
     var result;
     if (this.logger) {
-      result = this.logger(text, true, true);
+      result = this.logger(text);
     }
     return result;
   }
 
-  this.tick = function () {}
+  this.tick = function() {};
+  
+  this.ack = function() {};
 
   this.poll = function() {
     this.reducePollFrequency();
     this._jsonp( 'question' )
   }
 
+  // Need a random poll id to augment the jsonp urls
+  // otherwise some devices will cache the jsonp call
   this.pollId = function() {
     return Math.floor((Math.random()*10000000));
   }
 
   this.reducePollFrequency = function() {
-    if ( this.nextPoll > 0 && this.nextPoll < 5000 ) {
-      this.nextPoll = this.nextPoll + 500;
+    if ( this.nextPoll > 0 && this.nextPoll < this.MAXIMUM_POLL_TIME ) {
+      this.nextPoll = this.nextPoll + this.POLL_INCREMENT;
     }
   }
 
@@ -48,12 +58,12 @@ function Talkshow(uri) {
       src = src + "/" + data['status']
       src = src + "/" + data['object']
       src = src + "/" + data['content']
-      src = src + "?callback=notify"
+      src = src + "?callback=ts.log"
     } else {
       src = src + '?callback=ts.handleTalkShowHostQuestion'
     }
     script.src = src
-    notify("Polling: " + src, true, true);
+    notify("Polling: " + src);
 
     var scriptsNode = document.getElementById("scripts")
 
@@ -81,7 +91,32 @@ function Talkshow(uri) {
                                     self.nextExecution(self.nextPoll);
                                    }, self.nextPoll )
   }
+  
+  this.executeFunction = function( functionName, args ) {
+    var namespaces = functionName.split(".");
+    var func = namespaces.pop();
+    var context = window;
+    for (var i = 0; i < namespaces.length; i++) {
+        context = context[namespaces[i]];
+        if (! context ) {
+          throw "Function context '" + namespaces[i]  + "' for " + functionName + " does not exist"
+        }
+    }
+    if (! context[func] ) {
+      throw "Function '" + func  + "' does not exist for context '" + context.toString() + "'"
+    }
 
+    return context[func].apply(context, args);
+  }
+
+  //
+  // Callback for handling a question
+  // Can deal with three question types:
+  //
+  // * nop -- do nothing
+  // * code -- eval a code string
+  // * invocation -- invoke a function
+  //
   this.handleTalkShowHostQuestion = function(json) {
     var id = json['id']
     var response = new Array()
@@ -96,9 +131,21 @@ function Talkshow(uri) {
       response['content'] = "nop"
     }
     else if (type == 'code') {
-      ts.nextPoll = 500;
+      ts.nextPoll = this.MINIMUM_POLL_TIME;
       try {
         response['content'] = eval(json['content']);
+      } catch( err ) {
+        response['status'] = 'error';
+        response['content'] = err.toString();
+      }
+    }
+    else if (type == 'invocation') {
+      ts.nextPoll = this.MINIMUM_POLL_TIME;
+      func = json['function']
+      args = json['args']
+
+      try {
+        response['content'] = this.executeFunction( func, args );
       } catch( err ) {
         response['status'] = 'error';
         response['content'] = err.toString();
