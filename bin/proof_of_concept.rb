@@ -1,4 +1,4 @@
-require 'lib/talk_show'
+require 'talk_show'
 
 ts = TalkShow.new()
 
@@ -8,7 +8,7 @@ words = %w{Hello from the server Lorem ipsum dolor sit amet, consectetur adipisi
 
 words.each do |word|
 
-  result = ts.execute( %{notify("#{word}", true, true);} )
+  result = ts.execute( %{notify("#{word}");} )
  
   puts result
 end
