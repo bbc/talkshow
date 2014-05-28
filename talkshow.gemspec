@@ -1,9 +1,6 @@
-require File.expand_path('gembuilder')
-
 Gem::Specification.new do |s|
   s.name        = 'talkshow'
-  s.version     = $version
-  s.date        = $date
+  s.version     = 1.0.pre2
   s.summary     = 'Talkshow library'
   s.description = 'Framework for executing automated commands on TV and similar devices'
   s.authors     = ['Joseph Haig']

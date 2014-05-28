@@ -5,7 +5,12 @@ require 'json'
 require 'logger'
 
 class TalkShowServer < Sinatra::Base
-  
+  configure do
+    if ENV['TSPORT']
+      set :port, ENV['TSPORT']
+    end
+  end
+
   def self.question_queue(queue = nil)
     if queue
       @@question_queue = queue
