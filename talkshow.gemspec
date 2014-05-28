@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'talkshow'
-  s.version     = 1.0.pre2
+  s.version     = '1.0.pre2'
   s.summary     = 'Talkshow library'
   s.description = 'Framework for executing automated commands on TV and similar devices'
   s.authors     = ['Joseph Haig']
