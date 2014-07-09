@@ -58,7 +58,7 @@ Then(/^I should receive a response$/) do
   # Get the time from the running javascript. It should be
   # greater than 1374089428804 which is the result I got when
   # I wrote this test
-  @result.to_i.should > 1374089428804
+  @result.to_i.should < 1374089428804
 end
 
 

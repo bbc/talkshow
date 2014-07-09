@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.email       = 'joe.haig@bbc.co.uk'
   s.files       = [
                     'lib/talkshow.rb',
-                    'lib/talkshow/*.rb',
+                    'lib/talkshow/*',
                   ]
   s.homepage    = 'https://github.com/fmtvp/talkshow'
   s.license     = 'Apache 2'
