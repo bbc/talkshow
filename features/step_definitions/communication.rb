@@ -1,7 +1,7 @@
-$: << '.'
+$: << './lib'
 require 'open-uri'
 require 'watir-webdriver'
-require 'lib/talk_show'
+require 'talkshow'
 
 
 Given(/^I'm running a javascsript application$/) do
@@ -39,7 +39,7 @@ end
 
 Given(/^a talkshow server is running$/) do
   if !$ts
-    $ts = TalkShow.new()
+    $ts = Talkshow.new()
     $ts.start_server
   end
   @ts = $ts
@@ -69,7 +69,7 @@ end
 When(/^I send invalid javascript$/) do
   begin
     @ts.execute('nosuchfunction()')
-  rescue Exception => e
+  rescue StandardError => e
     @exception = e
     puts e.inspect
   end

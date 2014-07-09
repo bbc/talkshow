@@ -1,6 +1,8 @@
-require 'talk_show'
+#!/usr/bin/env ruby
 
-ts = TalkShow.new()
+require 'talkshow'
+
+ts = Talkshow.new()
 
 ts.start_server
 
@@ -15,9 +17,11 @@ end
 
 sleep 3 # Handle some nops
 
-puts ts.execute( "nosuchfunction()")
-
-ts.recover
+begin
+  ts.execute( "nosuchfunction()")
+rescue StandardError => e
+  puts e
+end
 
 puts ts.execute( %{notify("All done", true, true);} )
 

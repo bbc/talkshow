@@ -2,7 +2,7 @@
 // should look for the server. For example localhost:4567/talkshowhost
 function Talkshow(uri) {
   
-  this.VERSION = '0.2'
+  this.VERSION = '1.0'
   this.POLL_INCREMENT = 500;
   this.MAXIMUM_POLL_TIME = 5000;
   this.MINIMUM_POLL_TIME = 500;
@@ -10,7 +10,7 @@ function Talkshow(uri) {
   this.url = "http://" + uri;
   this.logger;
   this.ticker;
-  this.nextPoll = this.MAXIMUM_POLL_TIME ;
+  this.nextPoll = this.MINIMUM_POLL_TIME ;
   
   this.log = function( text ) {
     var result;
@@ -77,20 +77,12 @@ function Talkshow(uri) {
   }
   
 
-  this.check = function() {
-    this.log( "Checking status" );
-    this.poll;
-  }
-
-  this.recover = function() {
-    this.log( "Recover");
-    location.reload(true);
-  }
-
+  // Set up the polling
   this.initialize = function() {
-    this.nextExecution(self.nextPoll) // 1 second till first poll
+    this.nextExecution(self.nextPoll)
   }
 
+  // Set the next poll
   this.nextExecution = function( time ) {
     var self = this;
     window.setTimeout( function() { ts.poll();
@@ -98,6 +90,7 @@ function Talkshow(uri) {
                                    }, self.nextPoll )
   }
   
+  // Execute a function
   this.executeFunction = function( functionName, args ) {
     var namespaces = functionName.split(".");
     var func = namespaces.pop();
