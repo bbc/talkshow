@@ -27,8 +27,3 @@ Feature: Communication
     When I execute a multiline js file
     Then I should receive the return response
 
-  Scenario: Invoke a function in js
-    Given a talkshow server is running
-    When I invoke a js function
-    Then I should receive the return response
-

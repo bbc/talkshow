@@ -8,7 +8,6 @@ Given(/^I'm running a javascsript application$/) do
 
   if !$test_application_pid
     $test_application_pid = fork do
-      puts "Subprocess"
       Dir.chdir 'test_application'
       exec 'ruby start_app.rb > test_application.log 2>&1'
       sleep 1
@@ -102,6 +101,27 @@ When(/^I execute a multiline js file$/) do
   @expected = 2000
   @result = @ts.execute_file( './features/fixtures/multiline.js' )
 end
+
+
+#
+# Scenario 5
+#
+
+When(/^I invoke a js function with no arguments$/) do
+  @expected = 0 # Less than 1 which to_i converts to zero
+  @result = @ts.invoke( 'Math.random', nil )
+end
+
+When(/^I invoke a js function with one argument$/) do
+  @expected = 5
+  @result = @ts.invoke( 'Math.sqrt', [25] )
+end
+
+When(/^I invoke a js function with multiple arguments$/) do
+  @expected = 10
+  @result = @ts.invoke( 'Math.max', [1,3,10,6,8] )
+end
+
 
 
 #

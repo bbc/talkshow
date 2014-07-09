@@ -47,6 +47,7 @@ class TalkShow
     end
   end
 
+
   def invoke( function, args, timeout=6 )
     send_question( {
         type: 'invocation',
@@ -61,10 +62,9 @@ class TalkShow
   end
     
   def send_question( message, timeout )
+    @answer_queue.clear();
     @question_queue.push( message )
     
-    p message
-
     # Negative timeout - fire and forget
     # Should only be used if it is known not to return an answer
     return nil if timeout < 0
@@ -79,8 +79,6 @@ class TalkShow
       }
     end
     
-    p answer
-
     if !answer
       raise TalkShowTimeout.new
     end
@@ -91,8 +89,13 @@ class TalkShow
 
     case answer[:object]
     when 'boolean'
-      bool = ( answer[:data] == 'true' )
-      return bool
+      answer[:data] == 'true'
+    when 'number'
+      if answer[:data].include?('.')
+        answer[:data].to_f
+      else
+        answer[:data].to_i
+      end
     when 'undefined'
       if answer[:data] == 'undefined'
         nil
@@ -102,7 +105,11 @@ class TalkShow
     when 'string'
       answer[:data].to_s
     else
-      answer[:data]
+      begin
+        JSON.parse(answer[:data])
+      rescue
+        answer[:data]
+      end
     end
   end
   

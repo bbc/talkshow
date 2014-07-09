@@ -10,8 +10,8 @@ function Talkshow(uri) {
   this.url = "http://" + uri;
   this.logger;
   this.ticker;
-  this.nextPoll = MAXIMUM_POLL_TIME ;
-
+  this.nextPoll = this.MAXIMUM_POLL_TIME ;
+  
   this.log = function( text ) {
     var result;
     if (this.logger) {
@@ -53,23 +53,29 @@ function Talkshow(uri) {
     script.charset = 'utf-8';
 
     var src = this.url + "/" + type + "/" + this.pollId();
+
     if (type == 'answer') {
+      var content = data['content'];
+      // Stringify if we have an object -- we can parse it better
+      // from the other side
+      if (content != undefined && typeof content == 'object') {
+        content = JSON.stringify(content)
+      }
       src = src + "/" + data['id']
       src = src + "/" + data['status']
       src = src + "/" + data['object']
-      src = src + "/" + data['content']
+      src = src + "/" + encodeURIComponent(content)
       src = src + "?callback=ts.log"
     } else {
       src = src + '?callback=ts.handleTalkShowHostQuestion'
     }
     script.src = src
-    notify("Polling: " + src);
 
     var scriptsNode = document.getElementById("scripts")
 
     scriptsNode.replaceChild(script, scriptsNode.lastChild);
   }
-
+  
 
   this.check = function() {
     this.log( "Checking status" );
@@ -156,8 +162,28 @@ function Talkshow(uri) {
       response['status'] = 'error'
       response['content'] = "Unknown question type";
     }
-    response['object'] = typeof response['content']
+    response['object'] = typeof response['content'];
 
     ts.respond( response )
   }
+  
+  
+  // Reset the messages
+  this.sendClear = function() {
+    
+    var content = true;
+    var object_type = typeof content;
+    
+    var message = {
+      'id': 0,
+      'status': 'clear',
+      'content': content,
+      'object': object_type
+    }
+    this.respond( message )
+  }
+  
+  
+  // Talkshow has loaded, send a clear
+  this.sendClear();
 }

@@ -11,9 +11,6 @@ ts.log( "TalkShow initialized and waiting for " + ts.url);
 
 ts.initialize();
 
-
-
-
 function notify( string ) {
   
   var item;

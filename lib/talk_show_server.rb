@@ -95,6 +95,10 @@ class TalkShowServer < Sinatra::Base
                                          } )
     end
     logger.info( "/answer   ##{params[:id]}: #{params[:data]}" )
+    if params[:id] == 0
+      logger.info( "Reset received, talkshow reloaded")
+    end
+    
     content_type 'text/javascript'
     'ts.ack();'
   end
