@@ -9,7 +9,7 @@ Given(/^I'm running a javascsript application$/) do
   if !$test_application_pid
     $test_application_pid = fork do
       Dir.chdir 'test_application'
-      exec 'ruby start_app.rb > test_application.log 2>&1'
+      system 'ruby start_app.rb > test_application.log 2>&1'
       sleep 1
     end
   end
@@ -129,9 +129,12 @@ end
 #
 
 at_exit do
+  puts 'Performing cleanup'
   if $test_application_pid
     puts "killing " + $test_application_pid.to_s
-    Process.kill 'HUP', $test_application_pid
+    Process.kill 'SIGINT', $test_application_pid
     Process.wait $test_application_pid
+  else
+    exit
   end
 end

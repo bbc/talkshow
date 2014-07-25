@@ -30,7 +30,7 @@ You can execute raw javascript, or invoke javascript methods in your application
 You can specify an alternative port to start the talkshow server with the TALKSHOW_PORT
 environment variable. For example if you are running cucumber tests with talkshow:
 
-    TALKSHOW_URL=1234 bundle exec cucumber
+    TALKSHOW_PORT=1234 bundle exec cucumber
     
 This will tell talkshow to start up the talkshow sinatra server on port 1234.
 

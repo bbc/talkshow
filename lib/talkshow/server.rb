@@ -102,6 +102,7 @@ class Talkshow
                                             :status => params[:status]
                                            } )
       end
+      
       logger.info( "/answer   ##{params[:id]}: #{params[:data]}" )
       if params[:id] == 0
         logger.info( "Reset received, talkshow reloaded")

@@ -26,7 +26,7 @@ function Talkshow(uri) {
 
   this.poll = function() {
     this.reducePollFrequency();
-    this._jsonp( 'question' )
+    this._construct_jsonp_url( 'question' )
   }
 
   // Need a random poll id to augment the jsonp urls
@@ -41,26 +41,35 @@ function Talkshow(uri) {
     }
   }
 
+  // Send a response
+  // Stringification and chunking logic is handled here
   this.respond = function( response ) {
     //var jsonResponse = JSON.stringify( response )
-    this._jsonp( 'answer', response )
+    
+    var content = response['content']
+    // Stringify if we have an object -- we can parse it better
+    // from the other side
+    var payloads = [content] 
+    if (content != undefined && typeof content == 'object') {
+      content = JSON.stringify(content)
+      payloads = this._split_string(content)
+    }
+    response['content'] = payloads[0]
+    
+    this._construct_jsonp_url( 'answer', response )
+  }
+  
+  this._split_string = function(string) {
+    return content.match(/.{1,1000}/g)
   }
 
   // Create the jsonp url and appends to the document to execute
-  this._jsonp = function(type, data) {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.charset = 'utf-8';
-
+  this._construct_jsonp_url = function(type, data) {
+    
     var src = this.url + "/" + type + "/" + this.pollId();
 
     if (type == 'answer') {
       var content = data['content'];
-      // Stringify if we have an object -- we can parse it better
-      // from the other side
-      if (content != undefined && typeof content == 'object') {
-        content = JSON.stringify(content)
-      }
       src = src + "/" + data['id']
       src = src + "/" + data['status']
       src = src + "/" + data['object']
@@ -69,10 +78,18 @@ function Talkshow(uri) {
     } else {
       src = src + '?callback=ts.handleTalkShowHostQuestion'
     }
+  
+    this._make_jsonp_call(src)
+  }
+
+  // Do the actual jspnp call
+  this._make_jsonp_call = function(src) {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.charset = 'utf-8';
     script.src = src
 
     var scriptsNode = document.getElementById("scripts")
-
     scriptsNode.replaceChild(script, scriptsNode.lastChild);
   }
   
@@ -164,7 +181,7 @@ function Talkshow(uri) {
   // Reset the messages
   this.sendClear = function() {
     
-    var content = true;
+    var content = 'ready';
     var object_type = typeof content;
     
     var message = {

@@ -9,7 +9,7 @@ require 'json'
 set :port, 4568
 set :bind, '0.0.0.0'
 
-`cp ../js/talkshow.js public/`
+puts `cp ../js/talkshow.js public/ 2>&1`
 
 get '/app' do
 talkshowhost = params[:talkshowhost]
