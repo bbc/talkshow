@@ -82,6 +82,55 @@ class Talkshow
     end
   end
   
+  def non_blocking_pop(timeout)
+    sleep_time = 0.1
+    answer = nil
+    catch(:done) do
+      (timeout/sleep_time).to_i.times { |i|
+        answer = soft_pop
+        throw :done if answer
+        sleep sleep_time
+      }
+    end
+    answer
+  end
+
+
+  # listen for an answer, with a timeout, and also reconstitute
+  # any chunked responses
+  def listen_for_answer(timeout)
+ 
+    answer = non_blocking_pop(timeout)
+    if !answer
+      raise Talkshow::Timeout.new
+    end
+    
+    chunks = answer[:chunks]
+    if chunks
+      answers = [answer]
+
+      i = 1
+      nil_count = 0
+      while ( i < chunks.to_i && nil_count < 3 ) do
+        candidate = non_blocking_pop(1)
+        if !candidate
+          nil_count += 1
+          next
+        end
+        nil_count = 0
+        i += 1
+        answers << candidate
+      end
+      sorted_answers = answers.sort_by{ |a| a[:payload].to_i }
+      data = sorted_answers.collect { |a| a[:data] }.join
+      answer[:data] = data
+      answer[:payload] = nil
+    end
+    
+    answer
+  end
+
+  
   # Send message to js application
   # Message is a hash that looks like:
   #   {
@@ -102,19 +151,7 @@ class Talkshow
     # Should only be used if it is known not to return an answer
     return nil if timeout < 0
 
-    sleep_time = 0.1
-    answer = nil
-    catch(:done) do
-      (timeout/sleep_time).to_i.times { |i|
-        answer = soft_pop
-        throw :done if answer
-        sleep sleep_time
-      }
-    end
-    
-    if !answer
-      raise Talkshow::Timeout.new
-    end
+    answer = listen_for_answer(timeout)
 
     if answer[:status] == 'error'
       raise Talkshow::JavascriptError.new( answer[:data] )

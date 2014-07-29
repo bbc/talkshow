@@ -3,9 +3,9 @@
 function Talkshow(uri) {
   
   this.VERSION = '1.0'
-  this.POLL_INCREMENT = 500;
-  this.MAXIMUM_POLL_TIME = 5000;
-  this.MINIMUM_POLL_TIME = 500;
+  this.POLL_INCREMENT = 100;
+  this.MAXIMUM_POLL_TIME = 2000;
+  this.MINIMUM_POLL_TIME = 100;
   
   this.url = "http://" + uri;
   this.logger;
@@ -54,13 +54,20 @@ function Talkshow(uri) {
       content = JSON.stringify(content)
       payloads = this._split_string(content)
     }
-    response['content'] = payloads[0]
     
-    this._construct_jsonp_url( 'answer', response )
+    
+    for (i = 0; i < payloads.length; i++) {
+      response['content'] = payloads[i]
+      if (payloads.length > 1) {
+        response['chunks'] = payloads.length
+        response['payload'] = i
+      }
+      this._construct_jsonp_url( 'answer', response )
+    }
   }
   
   this._split_string = function(string) {
-    return content.match(/.{1,1000}/g)
+    return string.match(/.{1,500}/g)
   }
 
   // Create the jsonp url and appends to the document to execute
@@ -74,7 +81,10 @@ function Talkshow(uri) {
       src = src + "/" + data['status']
       src = src + "/" + data['object']
       src = src + "/" + encodeURIComponent(content)
-      src = src + "?callback=ts.log"
+      src = src + "?callback=ts.ack"
+      if (data['chunks']) {
+        src = src + '&chunks=' + data['chunks'] + '&payload=' + data['payload'] 
+      }
     } else {
       src = src + '?callback=ts.handleTalkShowHostQuestion'
     }
@@ -91,6 +101,11 @@ function Talkshow(uri) {
 
     var scriptsNode = document.getElementById("scripts")
     scriptsNode.replaceChild(script, scriptsNode.lastChild);
+    
+    // Force garbage collection
+    for (var elem in script) {
+      delete script[elem];
+    }
   }
   
 
@@ -141,13 +156,13 @@ function Talkshow(uri) {
 
     type = json['type']
     if (type == 'nop') {
-      ts.reducePollFrequency();
-      ts.tick();
+      this.reducePollFrequency();
+      this.tick();
       response['status'] = "nop"
       response['content'] = "nop"
     }
     else if (type == 'code') {
-      ts.nextPoll = this.MINIMUM_POLL_TIME;
+      this.nextPoll = this.MINIMUM_POLL_TIME;
       try {
         response['content'] = eval(json['content']);
       } catch( err ) {
@@ -156,7 +171,7 @@ function Talkshow(uri) {
       }
     }
     else if (type == 'invocation') {
-      ts.nextPoll = this.MINIMUM_POLL_TIME;
+      this.nextPoll = this.MINIMUM_POLL_TIME;
       func = json['function']
       args = json['args']
 
@@ -174,7 +189,7 @@ function Talkshow(uri) {
     }
     response['object'] = typeof response['content'];
 
-    ts.respond( response )
+    this.respond( response )
   }
   
   

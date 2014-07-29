@@ -12,6 +12,7 @@ class Talkshow
     
     configure do
       set :port, ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
+      set :protection, except: :path_traversal
     end
     
     def self.question_queue(queue = nil)
@@ -97,13 +98,15 @@ class Talkshow
       #callback = params[:callback]
       if params[:status] != 'nop'
         Talkshow::Server.answer_queue.push( {
-                                            :data => params[:data],
-                                            :object => params[:object],
-                                            :status => params[:status]
+                                            :data    => params[:data],
+                                            :object  => params[:object],
+                                            :status  => params[:status],
+                                            :chunks  => params[:chunks],
+                                            :payload => params[:payload]
                                            } )
       end
       
-      logger.info( "/answer   ##{params[:id]}: #{params[:data]}" )
+      logger.info( "/answer ##{params[:id]}"+ ( params[:chunks] ? "(#{params[:payload]}/#{params[:chunks]})" : '') +": #{params[:data]}" )
       if params[:id] == 0
         logger.info( "Reset received, talkshow reloaded")
       end
