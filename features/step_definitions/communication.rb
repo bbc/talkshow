@@ -71,7 +71,6 @@ When(/^I send invalid javascript$/) do
     @ts.execute('nosuchfunction()')
   rescue StandardError => e
     @exception = e
-    puts e.inspect
   end
 end
 
@@ -132,9 +131,8 @@ at_exit do
   puts 'Performing cleanup'
   if $test_application_pid
     puts "killing " + $test_application_pid.to_s
-    Process.kill 'SIGINT', $test_application_pid
+    Process.kill 'HUP', $test_application_pid
     Process.wait $test_application_pid
-  else
-    exit
   end
+  exit
 end

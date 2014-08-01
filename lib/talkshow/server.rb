@@ -14,7 +14,7 @@ class Talkshow
       set :port, ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
       set :protection, except: :path_traversal
     end
-    
+
     def self.question_queue(queue = nil)
       if queue
         @@question_queue = queue

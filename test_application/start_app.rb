@@ -3,7 +3,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'sinatra'
-require 'sinatra/reloader'
+#require 'sinatra/reloader'
 require 'json'
 
 set :port, 4568
