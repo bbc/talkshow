@@ -5,25 +5,24 @@ ts = new Talkshow(hosturl);
 ts.logger = notify;
 
 // Print out a simple . as the connection ticker
-ts.tick = notify(".");
+ ts.tick = function() { notify("."); };
 
 ts.log( "TalkShow initialized and waiting for " + ts.url);
 
 ts.initialize();
 
-
-
-
-function notify( string, token, newline  ) {
+function notify( string ) {
   
   var item;
   var list = document.getElementById("talkshowconsole");
 
-  if ( token ) {
-    string = '-> ' + string
-  }
-
-  if ( newline ) {
+  if (string.length <= 1) {
+    var node = list.childNodes.item( list.childNodes.length - 1 )
+    node.textContent = node.textContent + string
+  }  
+  else {
+    
+    string = '-> ' + string;
     item = document.createElement('li')
     var text = document.createTextNode(string);
     item.appendChild(text);
@@ -32,11 +31,6 @@ function notify( string, token, newline  ) {
       list.removeChild(list.childNodes[0]);
     }
     list.appendChild(item);
-  }
-  // No newline case -- add to existing node
-  else {
-    var node = list.childNodes.item( list.childNodes.length - 1 )
-    node.textContent = node.textContent + string
   }
   
   return string

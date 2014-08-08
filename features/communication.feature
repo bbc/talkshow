@@ -26,3 +26,4 @@ Feature: Communication
     Given a talkshow server is running
     When I execute a multiline js file
     Then I should receive the return response
+

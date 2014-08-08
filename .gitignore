@@ -1,1 +1,5 @@
+.yardoc
 talkshowserver.log
+talkshowworker.log
+test_application/public/talkshow.js
+test_application/test_application.log

@@ -1,22 +1,21 @@
 Gem::Specification.new do |s|
   s.name        = 'talkshow'
-  s.version     = '1.0.pre2'
-  s.summary     = 'Talkshow library'
-  s.description = 'Framework for executing automated commands on TV and similar devices'
-  s.authors     = ['Joseph Haig']
+  s.version     = '1.2.0'
+  s.date        = $date
+  s.summary     = 'Talkshow ruby gem'
+  s.description = 'Ruby to Javascript communications bridge'
+  s.authors     = ['Joseph Haig', 'David Buckhurst', 'Jenna Brown']
   s.email       = 'joe.haig@bbc.co.uk'
   s.files       = [
-                    'lib/talk_show.rb',
-                    'lib/talk_show_server.rb',
+                    'lib/talkshow.rb',
+                    'lib/talkshow/server.rb',
+                    'lib/talkshow/javascript_error.rb',
+                    'lib/talkshow/timeout.rb',
                   ]
   s.homepage    = 'https://github.com/fmtvp/talkshow'
   s.license     = 'Apache 2'
 
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'thin'
-  s.add_runtime_dependency 'sinatra-contrib'
   s.add_runtime_dependency 'json'
-  s.add_runtime_dependency 'cucumber'
-  s.add_runtime_dependency 'watir-webdriver'
-  s.add_runtime_dependency 'rspec'
 end

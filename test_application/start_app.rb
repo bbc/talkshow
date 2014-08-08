@@ -1,13 +1,15 @@
-#¡/usr/bin/ruby
+#! /usr/bin/env ruby
 require 'rubygems'
 require 'bundler/setup'
 
 require 'sinatra'
-require 'sinatra/reloader'
+#require 'sinatra/reloader'
 require 'json'
 
 set :port, 4568
 set :bind, '0.0.0.0'
+
+puts `cp ../js/talkshow.js public/ 2>&1`
 
 get '/app' do
 talkshowhost = params[:talkshowhost]

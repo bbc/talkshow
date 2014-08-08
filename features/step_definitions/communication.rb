@@ -1,16 +1,15 @@
-$: << '.'
+$: << './lib'
 require 'open-uri'
 require 'watir-webdriver'
-require 'lib/talk_show'
+require 'talkshow'
 
 
 Given(/^I'm running a javascsript application$/) do
 
   if !$test_application_pid
     $test_application_pid = fork do
-      puts "Subprocess"
       Dir.chdir 'test_application'
-      exec 'ruby start_app.rb > test_application.log 2>&1'
+      system 'ruby start_app.rb > test_application.log 2>&1'
       sleep 1
     end
   end
@@ -40,7 +39,7 @@ end
 
 Given(/^a talkshow server is running$/) do
   if !$ts
-    $ts = TalkShow.new()
+    $ts = Talkshow.new()
     $ts.start_server
   end
   @ts = $ts
@@ -70,9 +69,8 @@ end
 When(/^I send invalid javascript$/) do
   begin
     @ts.execute('nosuchfunction()')
-  rescue Exception => e
+  rescue StandardError => e
     @exception = e
-    puts e.inspect
   end
 end
 
@@ -105,13 +103,36 @@ end
 
 
 #
+# Scenario 5
+#
+
+When(/^I invoke a js function with no arguments$/) do
+  @expected = 0 # Less than 1 which to_i converts to zero
+  @result = @ts.invoke( 'Math.random', nil )
+end
+
+When(/^I invoke a js function with one argument$/) do
+  @expected = 5
+  @result = @ts.invoke( 'Math.sqrt', [25] )
+end
+
+When(/^I invoke a js function with multiple arguments$/) do
+  @expected = 10
+  @result = @ts.invoke( 'Math.max', [1,3,10,6,8] )
+end
+
+
+
+#
 # Kill off the test application if one was started
 #
 
 at_exit do
+  puts 'Performing cleanup'
   if $test_application_pid
     puts "killing " + $test_application_pid.to_s
     Process.kill 'HUP', $test_application_pid
     Process.wait $test_application_pid
   end
+  exit
 end

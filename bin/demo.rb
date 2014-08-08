@@ -1,6 +1,8 @@
-require 'lib/talk_show'
+#!/usr/bin/env ruby
 
-ts = TalkShow.new()
+require 'talkshow'
+
+ts = Talkshow.new()
 
 ts.start_server
 
@@ -8,16 +10,18 @@ words = %w{Hello from the server Lorem ipsum dolor sit amet, consectetur adipisi
 
 words.each do |word|
 
-  result = ts.execute( %{notify("#{word}", true, true);} )
+  result = ts.execute( %{notify("#{word}");} )
  
   puts result
 end
 
 sleep 3 # Handle some nops
 
-puts ts.execute( "nosuchfunction()")
-
-ts.recover
+begin
+  ts.execute( "nosuchfunction()")
+rescue StandardError => e
+  puts e
+end
 
 puts ts.execute( %{notify("All done", true, true);} )
 
