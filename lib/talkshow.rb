@@ -96,13 +96,24 @@ class Talkshow
   end
 
 
-  # listen for an answer, with a timeout, and also reconstitute
+  # listen for an answer for a specific id, with a timeout, and also reconstitute
   # any chunked responses
-  def listen_for_answer(timeout)
+  def listen_for_answer(id, timeout)
  
+    if ENV['TIMEOUT_MULTIPLIER']
+      timeout = ENV['TIMEOUT_MULTIPLIER'].to_i * timeout
+    end
+
     answer = non_blocking_pop(timeout)
     if !answer
       raise Talkshow::Timeout.new
+    end
+    
+    mismatch_retry = 3
+    if answer[:id].to_i != id.to_i && mismatch_retry >= 0
+      puts "Talkshow warning: message mismatch (#{answer[:id]} vs #{id})" unless answer[:id].to_i == 0
+      answer = non_blocking_pop(timeout)
+      mismatch_retry -= 1
     end
     
     chunks = answer[:chunks]
@@ -117,16 +128,26 @@ class Talkshow
           nil_count += 1
           next
         end
+        if candidate[:id].to_i != id.to_i
+          puts "Talkshow warning: message mismatch (#{candidate[:id]} vs #{id.to_i})"
+          next
+        end
+        
         nil_count = 0
         i += 1
         answers << candidate
       end
+      
+      if answers.count < chunks.to_i
+        raise "Couldn't reconstitute whole message"
+      end
+      
       sorted_answers = answers.sort_by{ |a| a[:payload].to_i }
       data = sorted_answers.collect { |a| a[:data] }.join
       answer[:data] = data
       answer[:payload] = nil
     end
-    
+        
     answer
   end
 
@@ -145,13 +166,15 @@ class Talkshow
     self.start_server if !@thread
     
     @answer_queue.clear();
+    message[:id] = rand(99999)
+
     @question_queue.push( message )
     
     # Negative timeout - fire and forget
     # Should only be used if it is known not to return an answer
     return nil if timeout < 0
 
-    answer = listen_for_answer(timeout)
+    answer = listen_for_answer(message[:id], timeout)
 
     if answer[:status] == 'error'
       raise Talkshow::JavascriptError.new( answer[:data] )

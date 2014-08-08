@@ -1,15 +1,15 @@
 // Talkshow constructor, takes a uri which indicates where it
 // should look for the server. For example localhost:4567/talkshowhost
-function Talkshow(uri) {
+function Talkshow(uri, poll_frequency) {
   
   this.VERSION = '1.0'
   this.POLL_INCREMENT = 100;
   this.MAXIMUM_POLL_TIME = 2000;
-  this.MINIMUM_POLL_TIME = 100;
+  this.MINIMUM_POLL_TIME = poll_frequency || 200;
+  this.JSONP_WINDOW = 60;
   
   this.url = "http://" + uri;
   this.logger;
-  this.ticker;
   this.nextPoll = this.MINIMUM_POLL_TIME ;
   
   this.log = function( text ) {
@@ -100,12 +100,18 @@ function Talkshow(uri) {
     script.src = src
 
     var scriptsNode = document.getElementById("scripts")
-    scriptsNode.replaceChild(script, scriptsNode.lastChild);
     
-    // Force garbage collection
-    for (var elem in script) {
-      delete script[elem];
+    // We use a rolling window for the jsonp node, otherwise
+    // we can end up deleting elements before they're processed
+    if ( scriptsNode.childNodes.length > this.JSONP_WINDOW ) {
+      var firstChild = scriptsNode.childNodes[0];
+      scriptsNode.removeChild(firstChild);
+      // Force garbage collection
+      for (var elem in firstChild) {
+        delete firstChild[elem];
+      }
     }
+    scriptsNode.appendChild(script, scriptsNode.lastChild);
   }
   
 

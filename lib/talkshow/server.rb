@@ -46,24 +46,22 @@ class Talkshow
   
     get '/question/:poll_id' do
       t = Time.new()
-      id = rand(99999)
   
       json_hash = {
-        :id => id,
         :time => t.to_s,
       }
   
-      logger.info( "question ##{id} coming in" )
-  
       content = nil;
       if Talkshow::Server.question_queue.empty?
-        logger.info( "Queue is empty" )
+        logger.debug("question: nop")
         json_hash[:type] = "nop"
         json_hash[:message] = ""
   
       else
         content = Talkshow::Server.question_queue.pop if !Talkshow::Server.question_queue.empty?
-        logger.info( "content: #{content.to_s}" )
+        id = content[:id]
+        json_hash[:id] = id
+        logger.info( "question ##{id}: #{content.to_s}" )
         
         type = content[:type]
         json_hash[:type] = type
@@ -77,9 +75,6 @@ class Talkshow
       end
   
       callback = params[:callback]
-      
-      #logger.info( "/question ##{id}: #{content}" )
-  #    logger.info( "/question ##{id}: #{type}: #{message}" )
       
       json = json_hash.to_json
   
@@ -102,11 +97,12 @@ class Talkshow
                                             :object  => params[:object],
                                             :status  => params[:status],
                                             :chunks  => params[:chunks],
-                                            :payload => params[:payload]
+                                            :payload => params[:payload],
+                                            :id      => params[:id]
                                            } )
       end
       
-      logger.info( "/answer ##{params[:id]}"+ ( params[:chunks] ? "(#{params[:payload]}/#{params[:chunks]})" : '') +": #{params[:data]}" )
+      logger.info( "/answer ##{params[:id]}"+ ( params[:chunks] ? "(#{params[:payload].to_i+1}/#{params[:chunks]})" : '') +": #{params[:data]}" )
       if params[:id] == 0
         logger.info( "Reset received, talkshow reloaded")
       end
