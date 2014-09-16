@@ -115,6 +115,10 @@ class Talkshow
       answer = non_blocking_pop(timeout)
       mismatch_retry -= 1
     end
+
+    if !answer
+      raise Talkshow::Timeout.new
+    end
     
     chunks = answer[:chunks]
     if chunks
