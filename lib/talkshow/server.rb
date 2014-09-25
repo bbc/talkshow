@@ -110,6 +110,24 @@ class Talkshow
       content_type 'text/javascript'
       'ts.ack();'
     end
+
+
+    # Capture the case when a response has no data (empty string)
+    get '/answer/:poll_id/:id/:status/:object/' do
+
+      Talkshow::Server.answer_queue.push( {
+                                            :data    => '',
+                                            :object  => params[:object],
+                                            :status  => params[:status],
+                                            :chunks  => params[:chunks],
+                                            :payload => params[:payload],
+                                            :id      => params[:id]
+                                           } )
+      logger.info( "/answer ##{params[:id]} <empty string>" )
+
+      content_type 'text/javascript'
+      'ts.ack();'
+    end
   
   end
 end
