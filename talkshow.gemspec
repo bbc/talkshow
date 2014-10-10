@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'talkshow'
-  s.version     = '1.2.0'
+  s.version     = '1.3.0.pre'
   s.date        = $date
   s.summary     = 'Talkshow ruby gem'
   s.description = 'Ruby to Javascript communications bridge'
