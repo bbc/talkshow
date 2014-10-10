@@ -88,12 +88,13 @@ class Talkshow
         json
       end
     end
-  
-    get '/answer/:poll_id/:id/:status/:object/:data' do
-      #callback = params[:callback]
+ 
+    # Deal with an answer, push it back to the main thread 
+    def handle_answer(params, data)
       if params[:status] != 'nop'
+                
         Talkshow::Server.answer_queue.push( {
-                                            :data    => params[:data],
+                                            :data    => data,
                                             :object  => params[:object],
                                             :status  => params[:status],
                                             :chunks  => params[:chunks],
@@ -102,7 +103,7 @@ class Talkshow
                                            } )
       end
       
-      logger.info( "/answer ##{params[:id]}"+ ( params[:chunks] ? "(#{params[:payload].to_i+1}/#{params[:chunks]})" : '') +": #{params[:data]}" )
+      logger.info( "/answer ##{params[:id]}"+ ( params[:chunks] ? "(#{params[:payload].to_i+1}/#{params[:chunks]})" : '') +": #{data}" )
       if params[:id] == 0
         logger.info( "Reset received, talkshow reloaded")
       end
@@ -110,23 +111,28 @@ class Talkshow
       content_type 'text/javascript'
       'ts.ack();'
     end
-
+ 
+    # Capture an answer 
+    get '/answer/:poll_id/:id/:status/:object/:data' do
+      handle_answer(params, params[:data])
+    end
 
     # Capture the case when a response has no data (empty string)
     get '/answer/:poll_id/:id/:status/:object/' do
+      handle_answer(params, '')
+    end
+    
+    # Capture older talkshow.js implementations that didn't escape urls properly
+    get '/answer/:poll_id/:id/:status/:object/*' do
+      logger.warn("WARNING: Unescaped url passed as data component for route '#{request.fullpath}'")
+      data = params[:splat].join('/')
+      handle_answer(params, data)
+    end 
 
-      Talkshow::Server.answer_queue.push( {
-                                            :data    => '',
-                                            :object  => params[:object],
-                                            :status  => params[:status],
-                                            :chunks  => params[:chunks],
-                                            :payload => params[:payload],
-                                            :id      => params[:id]
-                                           } )
-      logger.info( "/answer ##{params[:id]} <empty string>" )
-
-      content_type 'text/javascript'
-      'ts.ack();'
+    # Catch anything else and shout about it
+    get '/*' do
+      puts "[Talkshow server warning] Unhandled route: '#{request.fullpath}'"
+      logger.error("WARNING: Unhandled route: '#{request.fullpath}'")
     end
   
   end
