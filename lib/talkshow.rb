@@ -4,6 +4,7 @@ require 'json'
 require 'talkshow/server'
 require 'talkshow/timeout'
 require 'talkshow/javascript_error'
+require 'talkshow/queue'
 
 
 #Main class for talking to a talkshow instrumented js application.
@@ -18,11 +19,10 @@ require 'talkshow/javascript_error'
 # Start executing javascript:
 #   ts.execute( 'alert "Hello world!"' )
 class Talkshow
-  
+  attr_accessor :type
   attr_accessor :thread
   
   # Create a new Talkshow object to get going:
-  #   Talkshow.new()
   def initialize
   end
 
@@ -30,14 +30,23 @@ class Talkshow
   # This will be triggered if you don't do it -- but it takes a few
   # seconds to start up the thin server, so you are better off
   # issuing this yourself
-  def start_server
-    @question_queue = Queue.new
-    @answer_queue = Queue.new
-    @thread = Thread.new do
-      Talkshow::Server.question_queue(@question_queue)
-      Talkshow::Server.answer_queue(@answer_queue)
-      Talkshow::Server.run!
+  def start_server(url = nil)
+    
+    if !url
+      @type = :thread
+      @question_queue = ::Queue.new
+      @answer_queue = ::Queue.new
+      @thread = Thread.new do
+        Talkshow::Server.question_queue(@question_queue)
+        Talkshow::Server.answer_queue(@answer_queue)
+        Talkshow::Server.run!
+      end
+    else
+      @type = :remote
+      @question_queue = Talkshow::Queue.new(url)
+      @answer_queue = Talkshow::Queue.new(url)
     end
+    
   end
 
   # Stop the webserver
@@ -77,7 +86,8 @@ class Talkshow
   def soft_pop
     begin
       @answer_queue.pop(true)
-    rescue StandardError
+    rescue => e
+      puts e
       nil
     end
   end
@@ -167,7 +177,7 @@ class Talkshow
   def send_question( message, timeout )
     
     # Start the server if it hasn't been started already
-    self.start_server if !@thread
+    self.start_server if (self.type == :thread && !self.thread)
     
     @answer_queue.clear();
     message[:id] = rand(99999)
