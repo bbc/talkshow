@@ -31,6 +31,8 @@ class Talkshow
   # seconds to start up the thin server, so you are better off
   # issuing this yourself
   def start_server(url = nil)
+
+    url = ENV['TALKSHOW_REMOTE_URL'] if ENV['TALKSHOW_REMOTE_URL']
     
     if !url
       @type = :thread
