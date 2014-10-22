@@ -89,7 +89,6 @@ class Talkshow
     begin
       @answer_queue.pop(true)
     rescue => e
-      puts e
       nil
     end
   end
