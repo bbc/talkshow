@@ -5,6 +5,13 @@ require 'json'
 require 'logger'
 
 
+class Queue
+  # Take a peek at what's in the array
+  def peek
+    @que
+  end
+end
+
 # Sinatra server that is launched by your test code
 # to talk to the instrumented javascript application
 class Talkshow
@@ -32,13 +39,39 @@ class Talkshow
     
     def logger
       if !@logger
-        @logger = Logger.new('talkshowserver.log')
+        @logger = Logger.new('./talkshowserver.log')
       end
       @logger
     end
     
     # Make this available externally
     set :bind, '0.0.0.0'
+
+    get '/' do
+      questions = Talkshow::Server.question_queue.peek.to_json
+      answers = Talkshow::Server.answer_queue.peek.to_json
+
+      <<HERE
+<html>
+  <body>
+    <div>
+      <h1>Talkshow process: #{$$}</h1>
+      <h2>Port: #{settings.port}</h2>
+    </div>
+    <div>
+      <p>#{questions}</p>
+    </div>
+    <div>
+      <p>#{answers}</p>
+    </div>
+  </body>
+</html>
+HERE
+    end
+    
+    get '/status' do
+      200
+    end
     
     get '/talkshowhost' do
       "Talkshow running on " + request.host.to_s
@@ -128,6 +161,42 @@ class Talkshow
       data = params[:splat].join('/')
       handle_answer(params, data)
     end 
+
+    # Functions for remotely clearing queues
+    get '/answerqueue/clear' do
+      Talkshow::Server.answer_queue.clear()
+    end
+
+    get '/questionqueue/clear' do
+      Talkshow::Server.question_queue.clear()
+    end
+
+    # Push something onto the answer queue remotely
+    post '/questionqueue/push' do
+      logger.info( '/questionqueue/push' )
+      message = JSON.parse(params[:message], :symbolize_names => true)
+      logger.debug("Message pushed: #{message}")
+      Talkshow::Server.question_queue.push(message)
+    end
+
+    # Pop something from the answer queue
+    get '/answerqueue/pop' do
+      logger.info('answerqueue/pop')
+      begin
+        message = Talkshow::Server.answer_queue.pop(true)
+      rescue
+        message = nil
+      end
+      { :message => message }.to_json
+    end
+    
+    get '/questionqueue' do
+      Talkshow::Server.question_queue.peek.to_json
+    end
+
+    get '/answerqueue' do
+      Talkshow::Server.answer_queue.peek.to_json
+    end
 
     # Catch anything else and shout about it
     get '/*' do
