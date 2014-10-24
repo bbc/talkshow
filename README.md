@@ -37,9 +37,13 @@ This will tell talkshow to start up the talkshow sinatra server on port 1234.
 ## Using a remote talkshow instance
 
 If you would rather start the talkshow server as a seperate process you can start a seperate talkshow server as follows:
+
     TALKSHOW_PORT=4570 ./bin/talkshow_server.rb
+
 You can tell your test code to use that talkshow rather than starting talkshow in a thread: 
+
     export TALKSHOW_REMOTE_URL='http://localhost:4570'
+
 Or you can specify the remote url in your code when you start the server: ts.start_server( 'http://localhost:4570' )
 
 # Testing
