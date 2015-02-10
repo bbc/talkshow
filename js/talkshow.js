@@ -2,7 +2,7 @@
 // should look for the server. For example localhost:4567/talkshowhost
 function Talkshow(uri, poll_frequency) {
   
-  this.VERSION = '1.0'
+  this.VERSION = '1.1'
   this.POLL_INCREMENT = 100;
   this.MAXIMUM_POLL_TIME = 2000;
   this.MINIMUM_POLL_TIME = poll_frequency || 200;
@@ -47,11 +47,15 @@ function Talkshow(uri, poll_frequency) {
     //var jsonResponse = JSON.stringify( response )
     
     var content = response['content']
+    var payloads = [content] 
     // Stringify if we have an object -- we can parse it better
     // from the other side
-    var payloads = [content] 
     if (content != undefined && typeof content == 'object') {
       content = JSON.stringify(content)
+    }
+    
+    // Chunk the payload if we have a long old string
+    if (typeof content == 'string' && content.length > 500) {
       payloads = this._split_string(content)
     }
     
