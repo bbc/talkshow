@@ -5,6 +5,7 @@ require 'talkshow/server'
 require 'talkshow/timeout'
 require 'talkshow/javascript_error'
 require 'talkshow/queue'
+require 'timeout'
 
 
 #Main class for talking to a talkshow instrumented js application.
@@ -93,7 +94,7 @@ class Talkshow
     end
   end
   
-  def non_blocking_pop(timeout)
+  def unblocked_pop(timeout)
     sleep_time = 0.1
     answer = nil
     catch(:done) do
@@ -106,6 +107,19 @@ class Talkshow
     answer
   end
 
+  def non_blocking_pop(time_out)
+    answer = nil
+
+    begin
+      ::Timeout::timeout(time_out) {
+        answer = @answer_queue.pop(false)
+      }
+    rescue => e
+      # Do Nothing
+    end
+
+    answer
+  end
 
   # listen for an answer for a specific id, with a timeout, and also reconstitute
   # any chunked responses
@@ -120,6 +134,10 @@ class Talkshow
       raise Talkshow::Timeout.new
     end
     
+    if answer[:id] == 0
+      raise Talkshow::Initialize.new
+    end
+
     mismatch_retry = 3
     if answer[:id].to_i != id.to_i && mismatch_retry >= 0
       puts "Talkshow warning: message mismatch (#{answer[:id]} vs #{id})" unless answer[:id].to_i == 0
