@@ -5,6 +5,7 @@ gem 'sinatra-contrib'
 gem 'json'
 gem 'daemon'
 group :development, :test do
+  gem 'res'
   gem 'pry'
   gem 'cucumber'
   gem 'watir-webdriver'
