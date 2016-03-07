@@ -2,7 +2,11 @@ talkshow
 =========
 
 Talkshow is a lightweight communications bridge for driving javascript applications
-from ruby code. There are two parts to the implementation:
+from ruby code. It's useful for when you're using a browser that doesn't support
+selenium or other methods of automation. We use it at the BBC to automate our TAL 
+TV applications.
+
+There are two parts to the implementation:
 * Javascript talkshow library
 * Ruby talkshow gem
 
@@ -14,6 +18,8 @@ call initialize:
     ts = new Talkshow(hosturl);
     ts.initialize;
     
+The hosturl is the url of the talkshow server that you will start in a moment.
+
 Add the talkshow gem to your Gemfile, and in your ruby code:
 
     require 'talkshow'
@@ -71,3 +77,10 @@ In a new terminal, start the Talkshow demo:
     cd $TALKSHOW
     bundle install
     RUBYLIB='./lib' ruby bin/demo.rb
+
+## License
+
+Talkshow is part of the BBC Hive project and available to everyone under the terms of the MIT open source licence.
+Take a look at the LICENSE file in the code.
+
+Copyright (c) 2016 BBC
