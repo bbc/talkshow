@@ -22,6 +22,10 @@ class Talkshow
       set :protection, except: :path_traversal
     end
 
+    def self.set_port port
+      set :port, port
+    end
+
     def self.question_queue(queue = nil)
       if queue
         @@question_queue = queue

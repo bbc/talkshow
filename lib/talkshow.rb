@@ -30,9 +30,20 @@ class Talkshow
   # This will be triggered if you don't do it -- but it takes a few
   # seconds to start up the thin server, so you are better off
   # issuing this yourself
-  def start_server(url = nil)
+  def start_server(options = {})
+
+    # Backward compatibility
+    if options.is_a? String
+      url = options
+    else
+      url = options[:url]
+      port = options[:port]
+    end
 
     url = ENV['TALKSHOW_REMOTE_URL'] if ENV['TALKSHOW_REMOTE_URL']
+    port = ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
+
+    Talkshow::Server.set_port port if port
     
     if !url
       @type = :thread
