@@ -38,12 +38,14 @@ class Talkshow
     else
       url = options[:url]
       port = options[:port]
+      logfile = options[:logfile]
     end
 
     url = ENV['TALKSHOW_REMOTE_URL'] if ENV['TALKSHOW_REMOTE_URL']
     port = ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
 
     Talkshow::Server.set_port port if port
+    Talkshow::Server.set_logfile logfile if logfile
     
     if !url
       @type = :thread

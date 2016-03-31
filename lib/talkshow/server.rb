@@ -26,6 +26,12 @@ class Talkshow
       set :port, port
     end
 
+    def self.set_logfile file
+      @logfile = file
+      @logger.close if @logger
+      @logger = nil
+    end
+
     def self.question_queue(queue = nil)
       if queue
         @@question_queue = queue
