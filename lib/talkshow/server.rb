@@ -27,7 +27,7 @@ class Talkshow
     end
 
     def self.set_logfile file
-      @logfile = file
+      @@logfile = file
       @logger.close if @logger
       @logger = nil
     end
@@ -49,7 +49,7 @@ class Talkshow
     
     def logger
       if !@logger
-        @logger = Logger.new(@logfile || './talkshowserver.log')
+        @logger = Logger.new(@@logfile || './talkshowserver.log')
       end
       @logger
     end
