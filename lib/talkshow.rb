@@ -43,6 +43,7 @@ class Talkshow
 
     url = ENV['TALKSHOW_REMOTE_URL'] if ENV['TALKSHOW_REMOTE_URL']
     port = ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
+    logfile = ENV['TALKSHOW_LOG'] if ENV['TALKSHOW_LOG']
 
     Talkshow::Server.set_port port if port
     Talkshow::Server.set_logfile logfile if logfile
