@@ -49,7 +49,7 @@ class Talkshow
     
     def logger
       if !@logger
-        @logger = Logger.new('./talkshowserver.log')
+        @logger = Logger.new(@logfile || './talkshowserver.log')
       end
       @logger
     end
