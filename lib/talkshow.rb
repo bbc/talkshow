@@ -35,6 +35,8 @@ class Talkshow
     # Backward compatibility
     if options.is_a? String
       url = options
+      port = nil
+      logfile = nil
     else
       url = options[:url]
       port = options[:port]
