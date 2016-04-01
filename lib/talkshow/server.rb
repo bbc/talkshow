@@ -16,7 +16,6 @@ end
 # to talk to the instrumented javascript application
 class Talkshow
   class Talkshow::Server < Sinatra::Base
-    
     configure do
       set :port, ENV['TALKSHOW_PORT'] if ENV['TALKSHOW_PORT']
       set :protection, except: :path_traversal
@@ -26,6 +25,7 @@ class Talkshow
       set :port, port
     end
 
+    @@logfile = './talkshowserver.log'
     def self.set_logfile file
       @@logfile = file
       @logger.close if @logger
@@ -49,7 +49,7 @@ class Talkshow
     
     def logger
       if !@logger
-        @logger = Logger.new(@@logfile || './talkshowserver.log')
+        @logger = Logger.new(@@logfile)
       end
       @logger
     end
