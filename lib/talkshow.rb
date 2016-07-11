@@ -69,7 +69,7 @@ class Talkshow
 
   # Stop the webserver
   def stop_server
-    @thread.exit
+    @thread.exit if @thread
   end
 
   # Invoke a function in the javascript application
