@@ -77,6 +77,34 @@ In a new terminal, start the Talkshow demo:
     cd $TALKSHOW
     bundle install
     RUBYLIB='./lib' ruby bin/demo.rb
+    
+# Running all three applications (web_app, proxying server, talkshow client)
+
+1. Run the /proxying server/ on localhost 4570 - 
+    
+    TALKSHOW_PORT=4570 ./bin/talkshow_server.rb
+
+2. Run the test /web_app/ (the app that simulates an app running on TVs) on localhost:4568
+
+    ~/workspace/talkshow/test_applications/bundle exec ruby start_app.rb
+
+3. Browse to this URL to connect the web_app with the proxying server, then keep this URL open in a browser: http://localhost:4568/app?talkshowhost=localhost:4570
+
+4. Open an irb shell for the /talkshow client/ in the root of talkshow bundle: 
+
+    ~/workspace/talkshow/bundle exec irb
+    
+5. Use the following to run the talkshow client and connect it to the proxying serer:
+
+    require 'talkshow'
+    ts = Talkshow.new
+    ts.start_server("http://localhost:4570")
+
+6. In the irb shell, run the following:
+
+    ts.execute("console.log("test");")
+
+7. Return to the browser window displaying the web_app, open the javascript console and you should see the "test" message logged to the js console.
 
 ## License
 
