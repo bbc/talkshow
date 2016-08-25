@@ -78,7 +78,7 @@ In a new terminal, start the Talkshow demo:
     bundle install
     RUBYLIB='./lib' ruby bin/demo.rb
     
-# Running all three applications (web_app, proxying server, talkshow client)
+# Running all three applications to test (web_app, proxying server, talkshow client)
 
 ### 1. Run the /proxying server/ on localhost 4570 - 
     
