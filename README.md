@@ -80,11 +80,11 @@ In a new terminal, start the Talkshow demo:
     
 # Running all three applications to test (web_app, proxying server, talkshow client)
 
-### 1. Run the /proxying server/ on localhost 4570 - 
+### 1. Run the _proxying server_ on localhost 4570 - 
     
     TALKSHOW_PORT=4570 ./bin/talkshow_server.rb
 
-### 2. Run the test /web_app/ (the app that simulates an app running on TVs) on localhost:4568
+### 2. Run the test _web_app_ (the app that simulates an app running on TVs) on localhost:4568
 
     ~/workspace/talkshow/test_applications/bundle exec ruby start_app.rb
 
@@ -92,7 +92,7 @@ In a new terminal, start the Talkshow demo:
 
     http://localhost:4568/app?talkshowhost=localhost:4570
 
-### 4. Open an irb shell for the /talkshow client/ in the root of talkshow bundle: 
+### 4. Open an irb shell for the _talkshow client_ in the root of talkshow bundle: 
 
     ~/workspace/talkshow/bundle exec irb
     
