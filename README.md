@@ -88,7 +88,9 @@ In a new terminal, start the Talkshow demo:
 
     ~/workspace/talkshow/test_applications/bundle exec ruby start_app.rb
 
-### 3. Browse to this URL to connect the web_app with the proxying server, then keep this URL open in a browser: http://localhost:4568/app?talkshowhost=localhost:4570
+### 3. Browse to this URL to connect the web_app with the proxying server, then keep this URL open in a browser: 
+
+    http://localhost:4568/app?talkshowhost=localhost:4570
 
 ### 4. Open an irb shell for the /talkshow client/ in the root of talkshow bundle: 
 
