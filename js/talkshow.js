@@ -3,10 +3,10 @@
 function Talkshow(uri, poll_frequency) {
   
   this.VERSION = '1.1'
-  this.POLL_INCREMENT = 100;
-  this.MAXIMUM_POLL_TIME = 2000;
-  this.MINIMUM_POLL_TIME = poll_frequency || 200;
-  this.JSONP_WINDOW = 60;
+    this.POLL_INCREMENT = 10;
+    this.MAXIMUM_POLL_TIME = 100;
+    this.MINIMUM_POLL_TIME = poll_frequency || 10;
+    this.JSONP_WINDOW = 6000;
   
   this.url = "http://" + uri;
   this.logger;
